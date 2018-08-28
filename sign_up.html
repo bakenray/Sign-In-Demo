@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>注册</title>
+
+
+    <style>
+      body{
+        min-height:100vh;
+        display: flex;
+        margin:0;
+        justify-content:center;
+        align-items:center;
+      }
+    .form-box{
+      border: 1px solid #ccc;
+      padding:25px;
+      border-radius:4px;
+    }
+    .form-box>h2{
+        text-align: center;
+        margin: 0 0 20px 0;
+        padding: 0 0 12px 0;
+        border-bottom: 1px solid #ccc;
+    }
+    .form-box>form>.row{
+      margin:30px auto;
+      min-width: 364px;
+    }
+    .form-box>form>.row>label{
+      display: inline-block;
+      width:24%;
+    }
+    .form-box>form>.row>input{
+      width:45%;
+      padding:6px 0;
+    }  
+    .form-box>form>.row>input[type="submit"]{
+      width:100%;
+    } 
+    .form-box>form>.row>span.error{
+        display: inline-block;
+        width:26%;
+        font-size: 12px;
+        color: red;
+    }    
+    </style>
+</head>
+<body>
+<div class="form-box">
+  <h2>注册</h2>
+  <form id="formWrapper">
+    <div class="row">
+      <label>邮箱地址</label>
+      <input type="text" name="email">
+      <span class="error"></span>
+    </div>
+    <div class="row">
+      <label>登录密码</label>
+      <input type="password" name="password">
+      <span class="error"></span>
+    </div>
+    <div class="row">
+      <label>确认密码</label>
+      <input type="password" name="password_confirmation">
+      <span class="error"></span>
+    </div>   
+    <div class="row">
+      <input type="submit" value="注册">
+    </div>          
+  </form>
+</div>
+<script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
+<script>    
+  let hash={}                                   
+  $('#formWrapper').on('submit',function(e){
+    e.preventDefault()
+    var arr =['email','password','password_confirmation']
+    arr.forEach((name)=>{
+      let value = $('#formWrapper').find(`[name=${name}]`).val()
+      hash[name]=value
+    })
+    $('#formWrapper').find('[name="email"]').siblings('.error').each((index,span)=>{
+        $(span).text('')
+    })
+    if(hash['email']===''){
+        $('#formWrapper').find('[name="email"]').siblings('.error').text('*请填写邮箱')
+        return
+    }
+    if(hash['password']===''){
+        $('#formWrapper').find('[name="password"]').siblings('.error').text('*请填写密码')
+        return
+    }
+    if(hash['password_confirmation']===''){
+        $('#formWrapper').find('[name="password_confirmation"]').siblings('.error').text('*请确认密码')
+        return
+    }
+    if(hash['password']!==hash['password_confirmation']){
+        $('#formWrapper').find('[name="password_confirmation"]').siblings('.error').text('*密码不匹配')
+        return
+    }
+    $.post('/sign_up',hash)
+    .then(()=>{
+        console.log('success')
+        window.location.href ='/sign_in'
+    },(request)=>{
+       let {errors} = request.responseJSON   
+        if(errors.email && errors.email==='invalid'){
+            $('#formWrapper').find('[name="email"]').siblings('.error').text('*邮箱格式错误')
+        }
+        else if(errors.email && errors.email==='inuse'){
+            $('#formWrapper').find('[name="email"]').siblings('.error').text('*邮箱已被注册')
+        }
+    })
+  })  
+</script>
+</body>
+</html>

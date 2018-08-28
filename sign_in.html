@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>登录</title>
+    <style>
+      body{
+        min-height:100vh;
+        display: flex;
+        margin:0;
+        justify-content:center;
+        align-items:center;
+      }
+    .form-box{
+      border: 1px solid #ccc;
+      padding:25px;
+      border-radius:4px;
+    }
+    .form-box>h2{
+        text-align: center;
+        margin: 0 0 20px 0;
+        padding: 0 0 12px 0;
+        border-bottom: 1px solid #ccc;
+    }
+    .form-box>form>.row{
+      margin:30px auto;
+      min-width: 364px;
+    }
+    .form-box>form>.row>label{
+      display: inline-block;
+      width:24%;
+    }
+    .form-box>form>.row>.sign_up_box{
+      width: 100%;
+      display: inline-block;
+      border: 1px solid #ccc;
+      margin: 20px 0;
+      padding: 5px 0;
+      box-sizing: border-box;
+      text-align: center;
+      font-size: 14px;
+      color: #888;
+     text-decoration: none;
+    }
+    .form-box>form>.row>input{
+      width:45%;
+      padding:6px 0;
+    }  
+    .form-box>form>.row>input[type="submit"]{
+      width:100%;
+    } 
+    .form-box>form>.row>span.error{
+        display: inline-block;
+        width:26%;
+        font-size: 12px;
+        color: red;
+    }    
+    </style>
+</head>
+<body>
+<div class="form-box">
+  <h2>注册</h2>
+  <form id="formSignIn">
+    <div class="row">
+      <label>邮箱地址</label>
+      <input type="text" name="email">
+      <span class="error"></span>
+    </div>
+    <div class="row">
+      <label>登录密码</label>
+      <input type="password" name="password">
+      <span class="error"></span>
+    </div>
+  
+    <div class="row">
+      <input type="submit" value="登录">
+      <a href="/sign_up" class="sign_up_box">注册</a>      
+    </div>          
+  </form>
+</div>
+<script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
+<script>    
+        let hash={}                                   
+        $('#formSignIn').on('submit',function(e){
+          e.preventDefault()
+          var arr =['email','password','password_confirmation']
+          arr.forEach((name)=>{
+            let value = $('#formSignIn').find(`[name=${name}]`).val()
+            hash[name]=value
+          })
+          $('#formSignIn').find('[name="email"]').siblings('.error').each((index,span)=>{
+              $(span).text('')
+          })
+          if(hash['email']===''){
+              $('#formSignIn').find('[name="email"]').siblings('.error').text('*请填写邮箱')
+              return
+          }
+          if(hash['password']===''){
+              $('#formSignIn').find('[name="password"]').siblings('.error').text('*请填写密码')
+              return
+          }
+          $.post('/sign_in',hash)
+          .then(()=>{
+              console.log('success')
+              window.location.href = '/'
+          },(request)=>{
+             let {errors} = request.responseJSON   
+              if(errors.email && errors.email==='invalid'){
+                  $('#formSignIn').find('[name="email"]').siblings('.error').text('*邮箱格式错误')
+              }
+              else if(errors.email && errors.email==='wrond'){
+                  $('#formSignIn').find('[name="email"]').siblings('.error').text('*邮箱或密码错误')
+              }
+
+          })
+        })  
+      </script>
+      <script>
+          
+      </script>
+</body>
+</html>
